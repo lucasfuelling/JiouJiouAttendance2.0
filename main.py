@@ -2,7 +2,6 @@
 from datetime import datetime
 from datetime import timedelta
 import time
-import csv
 import requests
 import mariadb
 import os
@@ -32,7 +31,7 @@ def connect_to_mariadb():
         user="jiou99",
         password="jiou99",
         host="localhost",
-        #host="192.168.1.99",
+        #host="10.116.1.99",
         port=3306,
         database="attendance"
     )
@@ -203,21 +202,6 @@ def get_overhours(cur, userid):
         return overhours
 
 
-def export_data(conn):
-    month = datetime.now().month
-    year = datetime.now().year - 1911
-    str_year = str(year)
-    str_month = str(month).zfill(2)
-    cur = conn.cursor()
-    csv_writer = csv.writer(open("打卡-" + str_year + "-" + str_month + ".csv", "w", encoding='utf-8-sig', newline=''))
-    sql = "SELECT username, clockday, DATE_FORMAT(clockin_A,'%k:%i') as 'clockin_A', DATE_FORMAT(clockout_A,'%k:%i') as " \
-          "'clockout_A' FROM attendance where month(clockday) = month(curdate()) ORDER BY userid ASC, clockday ASC "
-    cur.execute(sql)
-    rows = cur.fetchall()
-    csv_writer.writerow(["Name", "Date", "Come", "Go"])
-    csv_writer.writerows(rows)
-
-
 def reader():
     while True:
         my_chip = input()
@@ -227,7 +211,6 @@ def reader():
                 if my_chip != "0002245328":
                     if user_clocked(conn, my_chip):
                         attendance_go(conn, my_chip)
-                        export_data(conn)
                     else:
                         attendance_come(conn, my_chip)
                 else:
@@ -264,22 +247,22 @@ def update_display():
             mytable.add_row([name, "", ""])
             no_of_employees_work = no_of_employees_work - 1
         elif user_clocked(conn, my_chip):
-            mytable.add_row(["", name + " " + clock_time(conn, name, "in"), ""])
+            mytable.add_row(["", name + " " + clock_time(conn, my_chip, "in"), ""])
         else:
-            mytable.add_row(["", "", name + " " + clock_time(conn, name, "out")])
+            mytable.add_row(["", "", name + " " + clock_time(conn, my_chip, "out")])
     mytable.field_names = ["人員: " + str(no_of_employees_work) + "/" + str(total_no_of_employees), "上班 \u263C", "下班 \u263D"]
     mytable.align = "l"
     print(mytable)
     conn.close()
 
 
-def clock_time(conn, name, in_out):
+def clock_time(conn, my_chip, in_out):
     cur = conn.cursor()
     if in_out == "in":
-        sql = "SELECT clockin_B FROM attendance WHERE clockday = curdate() AND username = ?"
+        sql = "SELECT clockin_B FROM attendance INNER JOIN users USING (userid) WHERE clockday = curdate() AND chipno = ?"
     else:
-        sql = "SELECT clockout_B FROM attendance WHERE clockday = curdate() AND username = ?"
-    par = (name,)
+        sql = "SELECT clockout_B FROM attendance INNER JOIN users USING (userid) WHERE clockday = curdate() AND chipno = ?"
+    par = (my_chip,)
     cur.execute(sql, par)
     clock_datetime = cur.fetchone()[0]
     return str(clock_datetime)
