@@ -218,7 +218,7 @@ def reader():
             else:
                 clear()
                 print("沒有找到用戶" + str(my_chip))
-            time.sleep(1.8)
+            time.sleep(0.1)
             conn.close()
             update_display()
         except mariadb.Error as e:
