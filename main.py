@@ -31,7 +31,7 @@ def connect_to_mariadb():
         user="jiou99",
         password="jiou99",
         host="localhost",
-        #host="10.116.1.99",
+        # host="10.116.1.99",
         port=3306,
         database="attendance"
     )
@@ -259,9 +259,9 @@ def update_display():
 def clock_time(conn, my_chip, in_out):
     cur = conn.cursor()
     if in_out == "in":
-        sql = "SELECT clockin_B FROM attendance INNER JOIN users USING (userid) WHERE clockday = curdate() AND chipno = ?"
+        sql = "SELECT clockin_B FROM attendance INNER JOIN users USING (userid) WHERE clockday = curdate() AND chipno = ? ORDER BY clockin_B DESC"
     else:
-        sql = "SELECT clockout_B FROM attendance INNER JOIN users USING (userid) WHERE clockday = curdate() AND chipno = ?"
+        sql = "SELECT clockout_B FROM attendance INNER JOIN users USING (userid) WHERE clockday = curdate() AND chipno = ? ORDER BY clockout_B DESC"
     par = (my_chip,)
     cur.execute(sql, par)
     clock_datetime = cur.fetchone()[0]
