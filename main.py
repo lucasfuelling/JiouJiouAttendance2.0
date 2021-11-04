@@ -30,8 +30,8 @@ def connect_to_mariadb():
     conn = mariadb.connect(
         user="jiou99",
         password="jiou99",
-        #host="localhost",
-        host="10.116.1.99",
+        host="localhost",
+        # host="10.116.1.99",
         port=3306,
         database="attendance"
     )
