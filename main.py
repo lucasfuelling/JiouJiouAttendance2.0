@@ -30,8 +30,8 @@ def connect_to_mariadb():
     conn = mariadb.connect(
         user="jiou99",
         password="jiou99",
-        host="localhost",
-        # host="10.116.1.99",
+        #host="localhost",
+        host="10.116.1.99",
         port=3306,
         database="attendance"
     )
@@ -219,8 +219,8 @@ def reader():
                 clear()
                 print("沒有找到用戶" + str(my_chip))
                 time.sleep(1.5)
+            update_display(conn)
             conn.close()
-            update_display()
         except mariadb.Error as e:
             print(e)
             time.sleep(1.5)
@@ -230,30 +230,29 @@ def shutdown():
     os.system("sudo shutdown -h now")
 
 
-def update_display():
+def update_display(conn):
     clear()
     mytable = PrettyTable()
-    conn = connect_to_mariadb()
     cur = conn.cursor()
     sql = "SELECT name, chipno FROM users WHERE name <>''"
     cur.execute(sql, )
     rows = cur.fetchall()
     total_no_of_employees = len(rows)
-    no_of_employees_work = total_no_of_employees
+    no_of_employees_work = 0
     for index, tuple in enumerate(rows):
         name = tuple[0]
         my_chip = tuple[1]
         if not user_at_work(conn, my_chip):
             mytable.add_row([name, "", ""])
-            no_of_employees_work = no_of_employees_work - 1
         elif user_clocked(conn, my_chip):
             mytable.add_row(["", name + " " + clock_time(conn, my_chip, "in"), ""])
+            no_of_employees_work = no_of_employees_work + 1
         else:
             mytable.add_row(["", "", name + " " + clock_time(conn, my_chip, "out")])
+
     mytable.field_names = ["人員: " + str(no_of_employees_work) + "/" + str(total_no_of_employees), "上班 \u263C", "下班 \u263D"]
     mytable.align = "l"
     print(mytable)
-    conn.close()
 
 
 def clock_time(conn, my_chip, in_out):
@@ -269,5 +268,7 @@ def clock_time(conn, my_chip, in_out):
 
 
 if __name__ == '__main__':
-    update_display()
+    conn = connect_to_mariadb()
+    update_display(conn)
+    conn.close()
     reader()
