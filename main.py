@@ -7,8 +7,8 @@ import mariadb
 import os
 from prettytable import PrettyTable
 
-token = "nhT4TzFE5b0NO3YMiMUlXexfqJrK23CAyyHuQyDEdP3"
-# token = "n"
+# token = "nhT4TzFE5b0NO3YMiMUlXexfqJrK23CAyyHuQyDEdP3"
+token = "n"
 max_overhours = 46
 
 
