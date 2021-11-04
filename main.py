@@ -234,7 +234,7 @@ def update_display(conn):
     clear()
     mytable = PrettyTable()
     cur = conn.cursor()
-    sql = "SELECT name, chipno FROM users WHERE name <>''"
+    sql = "SELECT name, chipno FROM users WHERE name <>'' ORDER BY name ASC"
     cur.execute(sql, )
     rows = cur.fetchall()
     total_no_of_employees = len(rows)
