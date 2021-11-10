@@ -251,7 +251,7 @@ def update_display(conn):
         else:
             mytable.add_row(["", "", name + " " + clock_time(conn, my_chip, "out")])
 
-    mytable.field_names = ["人員: " + str(no_of_employees_work) + "/" + str(total_no_of_employees), "上班 \u263C", "下班 \u263D"]
+    mytable.field_names = ["V1.0 人員: " + str(no_of_employees_work) + "/" + str(total_no_of_employees), "上班 \u263C", "下班 \u263D"]
     mytable.align = "l"
     print(mytable)
 
