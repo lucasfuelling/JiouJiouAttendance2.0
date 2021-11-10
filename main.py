@@ -221,9 +221,10 @@ def reader():
                 time.sleep(1.5)
             update_display(conn)
             conn.close()
-        except mariadb.Error as e:
+        except Exception as e:
             print(e)
             time.sleep(1.5)
+            pass
 
 
 def shutdown():
