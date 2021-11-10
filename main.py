@@ -22,8 +22,12 @@ def line_notify_message(line_token, msg):
         "Content-Type": "application/x-www-form-urlencoded"
     }
     payload = {'message': msg}
-    r = requests.post("https://notify-api.line.me/api/notify", headers=headers, params=payload)
-    return r.status_code
+    try:
+        r = requests.post("https://notify-api.line.me/api/notify", headers=headers, params=payload)
+        return r.status_code
+    except Exception as e:
+        print(e)
+        pass
 
 
 def connect_to_mariadb():
@@ -223,7 +227,6 @@ def reader():
             conn.close()
         except Exception as e:
             print(e)
-            time.sleep(1.5)
             pass
 
 
