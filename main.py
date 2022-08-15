@@ -96,6 +96,7 @@ def attendance_come(conn, my_chip):
         global token
         par = (my_chip,)
         come_time = datetime.now().strftime("%H:%M")
+        today_8am = datetime.now().replace(hour=8, minute=0)
         todays_date = datetime.now().strftime("%Y-%m-%d")
         cur = conn.cursor()
         sql = "SELECT userid, name FROM users WHERE chipno = ?"
@@ -112,20 +113,23 @@ def attendance_come(conn, my_chip):
         if overhours > max_overhours and datetime.today().weekday() == 5:
             sql = "INSERT INTO attendance(userid, username, clockday, clockin_A, clockin_B)" \
                   "VALUES (?,?,?,?,?)"
-            par = (userid, name, todays_date, None, come_time)
-        else:
+            par = (userid, name, todays_date, None, today_8am.strftime("%H:%M"))
+        elif datetime.today().weekday() == 6:
             sql = "INSERT INTO attendance(userid, username, clockday, clockin_A, clockin_B)" \
                   "VALUES (?,?,?,?,?)"
             par = (userid, name, todays_date, come_time, come_time)
+        else:
+            sql = "INSERT INTO attendance(userid, username, clockday, clockin_A, clockin_B)" \
+                  "VALUES (?,?,?,?,?)"
+            par = (userid, name, todays_date, come_time, today_8am.strftime("%H:%M"))
         cur.execute(sql, par)
         conn.commit()
-        today_8am = datetime.now().replace(hour=8, minute=0)
         if today_8am < datetime.now():
             msg = name + " " + come_time + "上班"
             line_notify_message(token, msg)
     else:
         clear()
-        print("已打卡了")
+        print("已打卡")
 
 
 def attendance_go(conn, my_chip):
@@ -262,7 +266,7 @@ def update_display(conn):
 def clock_time(conn, my_chip, in_out):
     cur = conn.cursor()
     if in_out == "in":
-        sql = "SELECT clockin_B FROM attendance INNER JOIN users USING (userid) WHERE clockday = curdate() AND chipno = ? ORDER BY clockin_B DESC"
+        sql = "SELECT clockin_A FROM attendance INNER JOIN users USING (userid) WHERE clockday = curdate() AND chipno = ? ORDER BY clockin_B DESC"
     else:
         sql = "SELECT clockout_B FROM attendance INNER JOIN users USING (userid) WHERE clockday = curdate() AND chipno = ? ORDER BY clockout_B DESC"
     par = (my_chip,)
